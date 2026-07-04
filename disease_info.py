@@ -1,177 +1,505 @@
-disease_info = {
+# ============================================================
+# Plant Doctor AI 3.0
+# Disease Information Database
+# ============================================================
 
-    "Pepper_Bell_Bacterial_spot": {
-        "display_name": "Bacterial Spot",
-        "severity": "Medium",
+disease_database = {
+
+    # ========================================================
+    # PEPPER
+    # ========================================================
+
+    "Pepper__bell___Bacterial_spot": {
+        "plant": "Bell Pepper",
+        "disease": "Bacterial Spot",
+
+        "about":
+        "A bacterial disease that causes dark brown or black circular spots on leaves and fruits. Severe infections lead to leaf drop and reduced fruit quality.",
+
         "symptoms": [
-            "Small brown spots",
-            "Yellow halos around spots",
-            "Leaves may drop"
+            "Small dark water-soaked spots",
+            "Yellow halo around lesions",
+            "Leaves turn yellow",
+            "Leaves fall early",
+            "Fruit develops rough scabby spots"
         ],
-        "cause": "Bacterial infection",
+
+        "causes": [
+            "Xanthomonas bacteria",
+            "Warm humid weather",
+            "Rain splash",
+            "Infected seeds"
+        ],
+
         "treatment": [
             "Remove infected leaves",
-            "Use copper-based bactericide",
-            "Avoid overhead watering"
+            "Spray copper-based bactericide",
+            "Avoid overhead watering",
+            "Disinfect gardening tools"
         ],
+
         "prevention": [
-            "Use disease-free seeds",
-            "Rotate crops",
-            "Keep leaves dry"
+            "Use certified disease-free seeds",
+            "Rotate crops every year",
+            "Keep plants well spaced",
+            "Avoid working with wet plants"
         ]
     },
 
-    "Pepper_Bell_healthy": {
-        "display_name": "Healthy Leaf",
-        "severity": "None",
+    "Pepper__bell___healthy": {
+        "plant": "Bell Pepper",
+        "disease": "Healthy",
+
+        "about":
+        "The plant appears healthy with no visible signs of disease.",
+
         "symptoms": [
-            "No disease detected"
+            "Bright green leaves",
+            "No spots",
+            "Healthy stem",
+            "Good fruit growth"
         ],
-        "cause": "Healthy plant",
+
+        "causes": [
+            "Proper nutrition",
+            "Good watering",
+            "Adequate sunlight"
+        ],
+
         "treatment": [
             "No treatment required"
         ],
+
         "prevention": [
             "Continue proper watering",
-            "Apply balanced fertilizer"
+            "Use balanced fertilizer",
+            "Inspect plants regularly"
         ]
     },
 
-    "Potato_Early_blight": {
-        "display_name": "Early Blight",
-        "severity": "Medium",
+    # ========================================================
+    # POTATO
+    # ========================================================
+
+    "Potato___Early_blight": {
+        "plant": "Potato",
+        "disease": "Early Blight",
+
+        "about":
+        "A fungal disease that first appears on older leaves and gradually spreads throughout the plant.",
+
         "symptoms": [
-            "Dark circular spots",
-            "Yellowing leaves"
+            "Brown circular spots",
+            "Concentric rings",
+            "Yellow leaves",
+            "Premature leaf drop"
         ],
-        "cause": "Fungal infection",
+
+        "causes": [
+            "Alternaria fungus",
+            "Warm temperatures",
+            "High humidity"
+        ],
+
         "treatment": [
             "Apply fungicide",
-            "Remove infected leaves"
+            "Remove infected leaves",
+            "Improve air circulation"
         ],
+
         "prevention": [
             "Crop rotation",
-            "Avoid excess moisture"
-        ]
-    },
-
-    "Potato_Late_blight": {
-        "display_name": "Late Blight",
-        "severity": "High",
-        "symptoms": [
-            "Large brown lesions",
-            "White fungal growth"
-        ],
-        "cause": "Phytophthora infestans",
-        "treatment": [
-            "Copper fungicide",
-            "Destroy infected plants"
-        ],
-        "prevention": [
-            "Improve airflow",
+            "Healthy seed potatoes",
             "Avoid overhead watering"
         ]
     },
 
-    "Potato_healthy": {
-        "display_name": "Healthy Leaf",
-        "severity": "None",
+    "Potato___Late_blight": {
+        "plant": "Potato",
+        "disease": "Late Blight",
+
+        "about":
+        "A serious fungal-like disease capable of destroying potato crops very quickly.",
+
         "symptoms": [
-            "No disease detected"
+            "Large brown lesions",
+            "White fungal growth",
+            "Stem infection",
+            "Rotting tubers"
         ],
-        "cause": "Healthy plant",
+
+        "causes": [
+            "Phytophthora infestans",
+            "Cool wet weather"
+        ],
+
         "treatment": [
-            "No treatment required"
+            "Remove infected plants",
+            "Spray fungicide immediately",
+            "Destroy infected debris"
         ],
+
         "prevention": [
-            "Maintain good farming practices"
+            "Use resistant varieties",
+            "Avoid excess irrigation",
+            "Maintain good airflow"
         ]
     },
 
-    "Tomato_Bacterial_spot": {
-        "display_name": "Bacterial Spot",
-        "severity": "Medium",
+    "Potato___healthy": {
+        "plant": "Potato",
+        "disease": "Healthy",
+
+        "about":
+        "Healthy potato plant showing no disease symptoms.",
+
         "symptoms": [
-            "Small dark lesions",
-            "Yellow halos"
+            "Green leaves",
+            "Strong stems",
+            "Normal growth"
         ],
-        "cause": "Bacterial infection",
+
+        "causes": [
+            "Proper care",
+            "Good soil",
+            "Balanced nutrients"
+        ],
+
         "treatment": [
-            "Copper spray",
-            "Remove infected leaves"
+            "No treatment needed"
         ],
+
         "prevention": [
-            "Use clean seeds",
-            "Avoid wet foliage"
+            "Continue normal care",
+            "Inspect regularly"
+        ]
+    },
+        # ========================================================
+        # TOMATO
+        # ========================================================
+
+        "Tomato_Bacterial_spot": {
+            "plant": "Tomato",
+            "disease": "Bacterial Spot",
+
+            "about":
+                "A bacterial disease that attacks leaves, stems, and fruits, reducing plant health and fruit quality.",
+
+            "symptoms": [
+                "Small dark leaf spots",
+                "Yellow halos",
+                "Leaf drop",
+                "Raised fruit lesions"
+            ],
+
+            "causes": [
+                "Xanthomonas bacteria",
+                "Warm humid weather",
+                "Rain splash",
+                "Infected seeds"
+            ],
+
+            "treatment": [
+                "Remove infected leaves",
+                "Spray copper bactericide",
+                "Avoid overhead watering"
+            ],
+
+            "prevention": [
+                "Use disease-free seeds",
+                "Rotate crops",
+                "Disinfect tools"
+            ]
+     },
+
+
+        "Tomato_Early_blight": {
+            "plant": "Tomato",
+            "disease": "Early Blight",
+
+            "about":
+                "A common fungal disease causing concentric brown spots on older tomato leaves.",
+
+            "symptoms": [
+                "Brown spots with concentric rings",
+                "Yellow leaves",
+                "Leaf drop",
+                "Reduced fruit production"
+            ],
+
+            "causes": [
+                "Alternaria solani fungus",
+                "Warm humid conditions"
+            ],
+
+            "treatment": [
+                "Remove infected leaves",
+                "Apply fungicide",
+                "Improve air circulation"
+            ],
+
+            "prevention": [
+                "Crop rotation",
+                "Mulching",
+                "Avoid wet foliage"
+            ]
+        },
+
+        "Tomato_Late_blight": {
+            "plant": "Tomato",
+            "disease": "Late Blight",
+
+            "about":
+                "A destructive disease capable of killing tomato plants within days under cool, wet conditions.",
+
+            "symptoms": [
+                "Large brown patches",
+                "White fungal growth",
+                "Stem lesions",
+                "Fruit rot"
+            ],
+
+            "causes": [
+                "Phytophthora infestans",
+                "Cool humid weather"
+            ],
+
+            "treatment": [
+                "Remove infected plants",
+                "Spray fungicide immediately",
+                "Destroy infected debris"
+            ],
+
+            "prevention": [
+                "Plant resistant varieties",
+                "Improve airflow",
+                "Avoid overhead watering"
+            ]
+        },
+
+        "Tomato_Leaf_Mold": {
+            "plant": "Tomato",
+            "disease": "Leaf Mold",
+
+            "about":
+                "A fungal disease that mainly affects greenhouse tomatoes by reducing photosynthesis.",
+
+            "symptoms": [
+                "Yellow patches",
+                "Olive-green mold underneath leaves",
+                "Leaf curling",
+                "Premature leaf drop"
+            ],
+
+            "causes": [
+                "High humidity",
+                "Poor ventilation",
+                "Cladosporium fungus"
+            ],
+
+            "treatment": [
+                "Remove infected leaves",
+                "Apply fungicide",
+                "Increase ventilation"
+            ],
+
+            "prevention": [
+                "Reduce humidity",
+                "Space plants properly",
+                "Avoid wet leaves"
+            ]
+        },
+
+        "Tomato_Septoria_leaf_spot": {
+            "plant": "Tomato",
+            "disease": "Septoria Leaf Spot",
+
+            "about":
+                "A fungal disease that creates numerous tiny spots and gradually weakens tomato plants.",
+
+            "symptoms": [
+                "Tiny circular spots",
+                "Dark borders",
+                "Yellowing leaves",
+                "Leaf drop"
+            ],
+
+            "causes": [
+                "Septoria fungus",
+                "Rain splash",
+                "High humidity"
+            ],
+
+            "treatment": [
+                "Remove infected leaves",
+                "Spray fungicide",
+                "Improve air circulation"
+            ],
+
+            "prevention": [
+                "Crop rotation",
+                "Mulching",
+                "Avoid overhead watering"
+            ]
+        },
+    "Tomato_Spider_mites_Two_spotted_spider_mite": {
+        "plant": "Tomato",
+        "disease": "Spider Mites",
+
+        "about":
+        "Spider mites are tiny pests that feed on leaf sap, causing yellow speckles and webbing.",
+
+        "symptoms": [
+            "Tiny yellow or white spots",
+            "Fine webbing under leaves",
+            "Leaf curling",
+            "Dry, brittle leaves"
+        ],
+
+        "causes": [
+            "Two-spotted spider mites",
+            "Hot dry weather",
+            "Low humidity"
+        ],
+
+        "treatment": [
+            "Spray neem oil",
+            "Use insecticidal soap",
+            "Remove heavily infested leaves"
+        ],
+
+        "prevention": [
+            "Maintain proper humidity",
+            "Inspect plants regularly",
+            "Encourage beneficial insects"
         ]
     },
 
-    "Tomato_Early_blight": {
-        "display_name": "Early Blight",
-        "severity": "Medium",
+    "Tomato__Target_Spot": {
+        "plant": "Tomato",
+        "disease": "Target Spot",
+
+        "about":
+        "A fungal disease producing circular brown lesions that resemble a target.",
+
         "symptoms": [
+            "Brown circular spots",
             "Concentric rings",
-            "Leaf yellowing"
+            "Yellowing leaves",
+            "Leaf drop"
         ],
-        "cause": "Alternaria fungus",
+
+        "causes": [
+            "Corynespora fungus",
+            "Warm humid weather"
+        ],
+
         "treatment": [
-            "Use fungicide",
-            "Prune infected leaves"
+            "Apply fungicide",
+            "Remove infected leaves",
+            "Improve airflow"
         ],
+
         "prevention": [
             "Crop rotation",
-            "Good ventilation"
+            "Avoid wet foliage",
+            "Proper plant spacing"
         ]
     },
 
-    "Tomato_Late_blight": {
-        "display_name": "Late Blight",
-        "severity": "High",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus": {
+        "plant": "Tomato",
+        "disease": "Yellow Leaf Curl Virus",
+
+        "about":
+        "A viral disease spread by whiteflies that severely reduces tomato yield.",
+
         "symptoms": [
-            "Large brown patches",
-            "White mold underneath leaves"
+            "Yellow curled leaves",
+            "Stunted growth",
+            "Reduced flowering",
+            "Poor fruit production"
         ],
-        "cause": "Phytophthora infestans",
+
+        "causes": [
+            "Tomato Yellow Leaf Curl Virus",
+            "Whitefly insects"
+        ],
+
         "treatment": [
-            "Copper fungicide",
-            "Destroy infected plants"
+            "Remove infected plants",
+            "Control whiteflies",
+            "Use sticky traps"
         ],
+
         "prevention": [
-            "Avoid excessive moisture",
-            "Increase airflow"
+            "Grow resistant varieties",
+            "Use insect netting",
+            "Control whiteflies early"
         ]
     },
 
-    "Tomato_Leaf_Mold": {
-        "display_name": "Leaf Mold",
-        "severity": "Medium",
+    "Tomato__Tomato_mosaic_virus": {
+        "plant": "Tomato",
+        "disease": "Tomato Mosaic Virus",
+
+        "about":
+        "A viral disease causing mottled leaves and poor fruit development.",
+
         "symptoms": [
-            "Yellow patches",
-            "Olive-green mold"
+            "Light and dark green mosaic pattern",
+            "Leaf distortion",
+            "Stunted plants",
+            "Poor fruit quality"
         ],
-        "cause": "Fungal infection",
+
+        "causes": [
+            "Tomato Mosaic Virus",
+            "Contaminated tools",
+            "Infected plant material"
+        ],
+
         "treatment": [
-            "Use fungicide",
-            "Reduce humidity"
+            "Remove infected plants",
+            "Disinfect tools",
+            "Do not compost infected plants"
         ],
+
         "prevention": [
-            "Proper spacing",
-            "Good ventilation"
+            "Wash hands before handling plants",
+            "Use disease-free seeds",
+            "Disinfect equipment"
         ]
     },
 
     "Tomato_healthy": {
-        "display_name": "Healthy Leaf",
-        "severity": "None",
+        "plant": "Tomato",
+        "disease": "Healthy",
+
+        "about":
+        "The tomato plant is healthy and free from visible disease symptoms.",
+
         "symptoms": [
-            "No disease detected"
+            "Bright green leaves",
+            "Strong stems",
+            "Healthy flowers",
+            "Normal fruit development"
         ],
-        "cause": "Healthy plant",
+
+        "causes": [
+            "Proper nutrition",
+            "Adequate watering",
+            "Good sunlight"
+        ],
+
         "treatment": [
             "No treatment required"
         ],
+
         "prevention": [
-            "Continue regular care"
+            "Continue regular watering",
+            "Fertilize as needed",
+            "Inspect plants weekly"
         ]
     }
 

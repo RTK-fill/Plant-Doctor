@@ -1,0 +1,15 @@
+Image,Prediction,Confidence (%)
+bacteria spot tomato.jpg,Tomato_Late_blight,61.73
+bacterial spot bell pepper.jpg,Tomato_Late_blight,91.48
+early blight potato.jpg,Potato___Early_blight,99.98
+Early blight tomato.jpg,Tomato_Late_blight,86.93
+Healthy bell pepper.jpg,Pepper__bell___healthy,83.28
+healthy potato leaf.jpg,Tomato_Late_blight,88.42
+Healthy tomato.jpg,Tomato_Late_blight,54.62
+late blight tomato.jpg,Tomato_Late_blight,86.93
+leaf mold tomato.jpg,Tomato_Late_blight,95.49
+leaf spot tomato.jpg,Tomato__Tomato_YellowLeaf__Curl_Virus,90.87
+mosaic virus tomato.jpg,Tomato_Late_blight,95.49
+potato late blight.jpg,Tomato_Septoria_leaf_spot,47.58
+target spot tomato.jpg,Tomato_Late_blight,98.49
+yellow leaf curls omato.jpg,Tomato_Late_blight,87.66
