@@ -7,7 +7,7 @@ import os
 
 # --- 1. SAFE IMPORTS & CONFIGURATION ---
 st.set_page_config(
-    page_title="Plant Doctor AI 3.0",
+    page_title="Plant Doctor AI ",
     page_icon="🌱",
     layout="centered"
 )
@@ -61,7 +61,7 @@ else:
 
 
 # --- 4. MAIN APP INTERFACE ---
-st.title("🌱 Plant Doctor AI 3.0")
+st.title("🌱 Plant Doctor AI ")
 st.markdown("##### *Advanced Agricultural Neural Network Diagnostics Framework*")
 st.write("Upload a clear leaf photo or capture one directly using your camera to identify crop pathogens instantly.")
 
@@ -213,7 +213,7 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
             tx_data = disease_info.info_dict.get(primary_class, {}).get('treatment', 'N/A') if 'disease_info' in locals() else 'N/A'
             
             report_body = (
-                f"PLANT DOCTOR AI 3.0 DIAGNOSTIC EXAM SUMMARY\n"
+                f"PLANT DOCTOR AI DIAGNOSTIC EXAM SUMMARY\n"
                 f"============================================\n"
                 f"Target Identification Class : {primary_class}\n"
                 f"Model Verification Weight   : {primary_confidence * 100:.2f}%\n\n"
