@@ -123,14 +123,21 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
         
     # Extract top index elements (Top 3 indices sorted high to low)
     top_3_indices = np.argsort(raw_predictions)[-3:][::-1]
-    
+
     primary_class = class_names[top_3_indices[0]]
     primary_confidence = float(raw_predictions[top_3_indices[0]])
-    # -------------------------------
-    # Override prediction (Developer Mode)# -------------------------------
+
+    # ====================================
+    # Developer Override
+    # ====================================
     if developer_mode:
-        predicted_class = manual_prediction
-        confidence = float(manual_confidence)
+        primary_class = manual_prediction
+        primary_confidence = manual_confidence / 100.0
+
+        # Fake Top-3 predictions
+        top_3_indices = [class_names.index(primary_class)]
+        raw_predictions = np.zeros(len(class_names))
+        raw_predictions[class_names.index(primary_class)] = primary_confidence
     
     # --- 6. SAFETY GUARDRAIL (Out-of-Distribution Layer) ---
     # Stops non-plant images from forcing a bad 90%+ prediction match
