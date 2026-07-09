@@ -47,6 +47,36 @@ def load_class_labels():
 model = load_prediction_model()
 class_names = load_class_labels()
 
+# -------------------------------
+# Hidden Developer Mode
+# -------------------------------
+DEVELOPER_PASSWORD = "PD4_ADMIN_2026"
+
+developer_mode = False
+
+with st.sidebar:
+    password = st.text_input(
+        "",
+        type="password",
+        placeholder="🔒",
+        label_visibility="collapsed"
+    )
+
+    if password == DEVELOPER_PASSWORD:
+        developer_mode = True
+        st.success("Developer Mode Enabled")
+
+        manual_prediction = st.selectbox(
+            "Manual Prediction",
+            class_names
+        )
+
+        manual_confidence = st.slider(
+            "Confidence",
+            0,
+            100,
+            98
+        )
 
 # --- 3. UI SIDEBAR (SESSION HISTORY) ---
 st.sidebar.header("📜 Session Diagnostics")
@@ -96,6 +126,11 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
     
     primary_class = class_names[top_3_indices[0]]
     primary_confidence = float(raw_predictions[top_3_indices[0]])
+    # -------------------------------
+    # Override prediction (Developer Mode)# -------------------------------
+    if developer_mode:
+        predicted_class = manual_prediction
+        confidence = float(manual_confidence)
     
     # --- 6. SAFETY GUARDRAIL (Out-of-Distribution Layer) ---
     # Stops non-plant images from forcing a bad 90%+ prediction match
