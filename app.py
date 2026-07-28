@@ -12,7 +12,8 @@ import importlib
 st.set_page_config(
     page_title="Plant Doctor AI",
     page_icon="🌱",
-    layout="wide"  # Upgraded to wide mode for side-by-side columns
+    layout="wide", # Upgraded to wide mode for side-by-side columns
+    initial_sidebar_state="expanded"
 )
 
 # Inject Custom CSS to hide Streamlit default branding and margins
@@ -116,7 +117,7 @@ with st.sidebar.expander("🛠️ System Admin / Developer"):
 
 # --- 4. MAIN APP INTERFACE ---
 
-# High-impact, bold, clean header layout
+# Clean, full-width high-impact header
 st.markdown("""
     <div style="margin-top: 0px; margin-bottom: 20px;">
         <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 0px; line-height: 1.1;">
