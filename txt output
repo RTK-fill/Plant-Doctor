@@ -10,3 +10,7 @@ git commit -m "Added hidden developer mode and updated app"
 git push
 
 PD4_ADMIN_2026
+
+ python -m streamlit run app.py
+ python -m streamlit run app.py
+ python -m streamlit run app.py
