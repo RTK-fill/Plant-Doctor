@@ -116,11 +116,17 @@ with st.sidebar.expander("🛠️ System Admin / Developer"):
 
 # --- 4. MAIN APP INTERFACE ---
 
-# Clean, professional header layout (no bulky colored boxes)
-col_title, col_badge = st.columns([4, 1])
-with col_title:
-    st.title("🌱 Plant Doctor AI")
-    st.caption("Advanced Agricultural Neural Network Diagnostics Framework")
+# High-impact, bold, clean header layout
+st.markdown("""
+    <div style="margin-top: 0px; margin-bottom: 20px;">
+        <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 0px; line-height: 1.1;">
+            🌱 Plant Doctor AI
+        </h1>
+        <p style="font-size: 1.15rem; opacity: 0.7; font-weight: 400; margin-top: 5px;">
+            Advanced Agricultural Neural Network Diagnostics Framework
+        </p>
+    </div>
+""", unsafe_allow_html=True)
 
 st.write("---")
 
@@ -176,19 +182,31 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
             # Sleek KPI Metric display
             st.metric(label="🔬 Primary Model Confidence", value=f"{primary_confidence * 100:.2f}%")
 
-            # Alt Candidates Expander
-            with st.expander("📊 View Alternate Probabilities"):
-                for rank, idx in enumerate(top_3_indices):
-                    alt_name = class_names[idx].replace('___', ' – ').replace('_', ' ')
-                    alt_conf = float(raw_predictions[idx])
-                    st.write(f"**Rank {rank + 1}:** {alt_name}")
-                    st.progress(alt_conf)
+            # --- INTERACTIVE PROBABILITY CHART ---
+            with st.expander("📊 View Probability Distribution", expanded=True):
+                st.caption("Top matching disease candidate likelihoods:")
+
+                # Build a dictionary or data structure for Streamlit's bar chart
+                # We'll take the top 5 predictions to make the chart look robust
+                top_5_indices = np.argsort(raw_predictions)[-5:][::-1]
+
+                chart_data = {}
+                for idx in top_5_indices:
+                    # Clean up class name for readable chart labels
+                    label = class_names[idx].replace('___', ' ').replace('_', ' ')
+                    # Shorten extra long names if needed
+                    if len(label) > 25:
+                        label = label[:22] + "..."
+                    score = float(raw_predictions[idx])
+                    chart_data[label] = score
+
+                # Render native interactive Streamlit bar chart
+                st.bar_chart(chart_data, color="#4ade80")
 
             # Session Logging
             current_log = {"disease": primary_class, "confidence": f"{primary_confidence * 100:.1f}%"}
             if current_log not in st.session_state.history:
                 st.session_state.history.append(current_log)
-
         with col2:
             readable_title = primary_class.replace('___', ' – ').replace('_', ' ')
             st.success(f"### Diagnosis Target: {readable_title}")
