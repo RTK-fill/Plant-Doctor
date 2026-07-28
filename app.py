@@ -12,6 +12,7 @@ st.set_page_config(
     page_icon="🌱",
     layout="centered"
 )
+import importlib
 
 # Safely import your existing disease info file
 try:
