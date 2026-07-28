@@ -16,15 +16,38 @@ st.set_page_config(
 )
 
 # Inject Custom CSS to hide Streamlit default branding and margins
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            .block-container {padding-top: 2rem; padding-bottom: 0rem;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+# --- 1. SAFE IMPORTS & CLEAN MINIMALIST CSS ---
+custom_css = """
+<style>
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .block-container {padding-top: 2rem; padding-bottom: 2rem;}
+
+    /* Clean subtle card look for containers */
+    div.st-key-metric-card {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    /* Soft, elegant accent colors for the metric */
+    [data-testid="stMetricValue"] {
+        color: #4ade80 !important; /* Soft modern mint green */
+        font-weight: 700 !important;
+    }
+
+    /* Modern clean button styling */
+    .stButton button, .stDownloadButton button {
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+    }
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
+
 
 # Safely import and force-reload disease info so descriptions always update
 try:
@@ -92,14 +115,17 @@ with st.sidebar.expander("🛠️ System Admin / Developer"):
         manual_confidence = st.slider("Confidence", 0, 100, 98)
 
 # --- 4. MAIN APP INTERFACE ---
-st.title("🌱 Plant Doctor AI")
-st.markdown("##### *Advanced Agricultural Neural Network Diagnostics Framework*")
+
+# Clean, professional header layout (no bulky colored boxes)
+col_title, col_badge = st.columns([4, 1])
+with col_title:
+    st.title("🌱 Plant Doctor AI")
+    st.caption("Advanced Agricultural Neural Network Diagnostics Framework")
+
 st.write("---")
 
 # Horizontal toggle for cleaner UI
-input_mode = st.radio("📸 **Select Image Source:**", ("📁 Upload Image File", "📷 Use Live Camera Capture"),
-                      horizontal=True)
-
+input_mode = st.radio("📸 **Select Image Source:**", ("📁 Upload Image File", "📷 Use Live Camera Capture"), horizontal=True)
 uploaded_file = None
 if input_mode == "📁 Upload Image File":
     uploaded_file = st.file_uploader("Select a plant leaf image...", type=["jpg", "jpeg", "png"],
