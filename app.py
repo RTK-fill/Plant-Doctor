@@ -1,22 +1,36 @@
-import os
 import streamlit as st
 import tensorflow as tf
-import keras  # We are using native, modern Keras 3 directly!
+import keras  # Native Keras 3 engine
 import numpy as np
 from PIL import Image
 import json
+import os
+import sys
+import importlib
 
-# --- 1. SAFE IMPORTS & CONFIGURATION ---
+# --- 1. SAFE IMPORTS & CSS CONFIGURATION ---
 st.set_page_config(
     page_title="Plant Doctor AI",
     page_icon="🌱",
-    layout="centered"
+    layout="wide"  # Upgraded to wide mode for side-by-side columns
 )
-import importlib
 
-# Safely import your existing disease info file
+# Inject Custom CSS to hide Streamlit default branding and margins
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            .block-container {padding-top: 2rem; padding-bottom: 0rem;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
+# Safely import and force-reload disease info so descriptions always update
 try:
     import disease_info
+
+    importlib.reload(disease_info)
 except ImportError:
     st.error("❌ Could not find `disease_info.py` in the current directory.")
 
@@ -33,9 +47,7 @@ def load_prediction_model():
     if not os.path.exists(model_path):
         st.error(f"❌ Model file missing at `{model_path}`.")
         return None
-
     try:
-        # Pure Keras 3 native loading - no legacy wrappers
         return keras.models.load_model(model_path, compile=False)
     except Exception as e:
         st.error(f"Failed to load model: {e}")
@@ -56,36 +68,6 @@ def load_class_labels():
 # Load data assets
 model = load_prediction_model()
 class_names = load_class_labels()
-# -------------------------------
-# Hidden Developer Mode
-# -------------------------------
-DEVELOPER_PASSWORD = "PD4_ADMIN_2026"
-
-developer_mode = False
-
-with st.sidebar:
-    password = st.text_input(
-        "",
-        type="password",
-        placeholder="🔒",
-        label_visibility="collapsed"
-    )
-
-    if password == DEVELOPER_PASSWORD:
-        developer_mode = True
-        st.success("Developer Mode Enabled")
-
-        manual_prediction = st.selectbox(
-            "Manual Prediction",
-            class_names
-        )
-
-        manual_confidence = st.slider(
-            "Confidence",
-            0,
-            100,
-            98
-        )
 
 # --- 3. UI SIDEBAR (SESSION HISTORY) ---
 st.sidebar.header("📜 Session Diagnostics")
@@ -94,190 +76,147 @@ if not st.session_state.history:
 else:
     for idx, log in enumerate(reversed(st.session_state.history)):
         clean_lbl = log['disease'].replace('___', ' ').replace('_', ' ')
-        st.sidebar.markdown(f"**{idx+1}. {clean_lbl}**")
-        st.sidebar.caption(f"Confidence: {log['confidence']} | Status: Checked")
+        st.sidebar.markdown(f"**{idx + 1}. {clean_lbl}**")
+        st.sidebar.caption(f"Confidence: {log['confidence']}")
         st.sidebar.write("---")
 
+# Tucked Developer Mode
+with st.sidebar.expander("🛠️ System Admin / Developer"):
+    DEVELOPER_PASSWORD = "PD4_ADMIN_2026"
+    developer_mode = False
+    password = st.text_input("Admin Password", type="password", placeholder="🔒", label_visibility="collapsed")
+    if password == DEVELOPER_PASSWORD:
+        developer_mode = True
+        st.success("Developer Mode Enabled")
+        manual_prediction = st.selectbox("Manual Prediction", class_names)
+        manual_confidence = st.slider("Confidence", 0, 100, 98)
 
 # --- 4. MAIN APP INTERFACE ---
-st.title("🌱 Plant Doctor AI ")
+st.title("🌱 Plant Doctor AI")
 st.markdown("##### *Advanced Agricultural Neural Network Diagnostics Framework*")
-st.write("Upload a clear leaf photo or capture one directly using your camera to identify crop pathogens instantly.")
+st.write("---")
 
-# Dual Input Selector (Highly mobile responsive)
-input_mode = st.radio("Select Image Source Input Type:", ("📁 Upload Image File", "📷 Use Live Camera Capture"))
+# Horizontal toggle for cleaner UI
+input_mode = st.radio("📸 **Select Image Source:**", ("📁 Upload Image File", "📷 Use Live Camera Capture"),
+                      horizontal=True)
 
 uploaded_file = None
 if input_mode == "📁 Upload Image File":
-    uploaded_file = st.file_uploader("Select a plant leaf image...", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Select a plant leaf image...", type=["jpg", "jpeg", "png"],
+                                     label_visibility="collapsed")
 else:
-    uploaded_file = st.camera_input("Center the affected leaf pattern in the camera frame")
-
+    uploaded_file = st.camera_input("Center the affected leaf pattern in the camera frame",
+                                    label_visibility="collapsed")
 
 # --- 5. PROCESSING & INFERENCE PIPELINE ---
 if uploaded_file is not None and model is not None and len(class_names) > 0:
-    # Read image
     image = Image.open(uploaded_file)
-    st.image(image, caption='Target Sample Image Assets', use_container_width=True)
-    
-    # Preprocessing to match your exact pipeline rules
-    # 160x160 target dimension -> Array transform -> Batch expansion
+
+    # Preprocessing
     img_resized = image.resize((160, 160))
     img_array = tf.keras.preprocessing.image.img_to_array(img_resized)
-    img_array = np.expand_dims(img_array, axis=0) 
-    
-    with st.spinner("Executing neural architecture prediction layers..."):
-        # Run inference
-        raw_predictions = model.predict(img_array)[0]
-        
-    # Extract top index elements (Top 3 indices sorted high to low)
-    top_3_indices = np.argsort(raw_predictions)[-3:][::-1]
+    img_array = np.expand_dims(img_array, axis=0)
 
+    with st.spinner("Executing neural architecture prediction layers..."):
+        raw_predictions = model.predict(img_array)[0]
+
+    top_3_indices = np.argsort(raw_predictions)[-3:][::-1]
     primary_class = class_names[top_3_indices[0]]
     primary_confidence = float(raw_predictions[top_3_indices[0]])
 
-    # ====================================
     # Developer Override
-    # ====================================
     if developer_mode:
         primary_class = manual_prediction
         primary_confidence = manual_confidence / 100.0
-
-        # Fake Top-3 predictions
         top_3_indices = [class_names.index(primary_class)]
         raw_predictions = np.zeros(len(class_names))
         raw_predictions[class_names.index(primary_class)] = primary_confidence
-    
-    # --- 6. SAFETY GUARDRAIL (Out-of-Distribution Layer) ---
-    # Stops non-plant images from forcing a bad 90%+ prediction match
+
+    # --- 6. SAFETY GUARDRAIL ---
     CONFIDENCE_THRESHOLD = 0.45
-    
+
     if primary_confidence < CONFIDENCE_THRESHOLD:
         st.error("⚠️ **Inconclusive Image Sample Detected**")
         st.warning(
-            f"The top match pattern profile only returned a **{primary_confidence*100:.1f}%** confidence value. "
-            "The system cannot verify if this image contains a valid target agricultural leaf specimen. "
-            "Please upload a clearer, well-lit photograph focusing purely on the leaf structure."
-        )
+            f"The top match pattern profile only returned a **{primary_confidence * 100:.1f}%** confidence value. Please upload a clearer, well-lit photograph focusing purely on the leaf structure.")
+        st.image(image, use_container_width=True)
     else:
-        # Format names cleanly for the presentation screen
-        readable_title = primary_class.replace('___', ' – ').replace('_', ' ')
-        st.success(f"### Diagnosis Target: {readable_title}")
-        
-        # Main Prediction Metric display
-        st.write(f"**Primary Target Match Probability:** `{primary_confidence * 100:.2f}%`")
-        st.progress(primary_confidence)
-        
-        # Session State Log Event Append
-        current_log = {"disease": primary_class, "confidence": f"{primary_confidence*100:.1f}%"}
-        if current_log not in st.session_state.history:
-            st.session_state.history.append(current_log)
-            
-        # Top 3 Alternative Candidates Metrics Block
-        with st.expander("📊 View Top 3 Probabilistic Class Distribution Weights"):
-            for rank, idx in enumerate(top_3_indices):
-                alt_name = class_names[idx].replace('___', ' – ').replace('_', ' ')
-                alt_conf = float(raw_predictions[idx])
-                st.write(f"**Rank {rank+1}:** {alt_name} (`{alt_conf*100:.2f}%`)")
-                st.progress(alt_conf)
+        # --- 7. SIDE-BY-SIDE LAYOUT DASHBOARD ---
+        col1, col2 = st.columns([1, 1.5], gap="large")
 
-        st.write("---")
-        
-        # --- 7. DYNAMIC TREATMENT MATRIX & DISCOVERY ---
-        # Safeguards matching keys against the external disease_info dictionary structure
-        # --- 7. DYNAMIC TREATMENT MATRIX & DISCOVERY ---
-        # Safeguards matching keys against the external disease_info dictionary structure
-        # --- 7. DYNAMIC TREATMENT MATRIX & DISCOVERY ---
-        # --- 7. DYNAMIC TREATMENT MATRIX & DISCOVERY ---
-        try:
-            # Synced with your actual dictionary variable name
-            DICTIONARY_NAME = "disease_database"
+        with col1:
+            st.image(image, caption='Target Sample', use_container_width=True)
 
-            if hasattr(disease_info, DICTIONARY_NAME):
-                target_dict = getattr(disease_info, DICTIONARY_NAME)
+            # Sleek KPI Metric display
+            st.metric(label="🔬 Primary Model Confidence", value=f"{primary_confidence * 100:.2f}%")
 
-                # SMART LOOKUP: Try the raw name first, then try a cleaned-up version
-                raw_key = primary_class
-                clean_key = primary_class.replace('___', '_').replace('__', '_')
+            # Alt Candidates Expander
+            with st.expander("📊 View Alternate Probabilities"):
+                for rank, idx in enumerate(top_3_indices):
+                    alt_name = class_names[idx].replace('___', ' – ').replace('_', ' ')
+                    alt_conf = float(raw_predictions[idx])
+                    st.write(f"**Rank {rank + 1}:** {alt_name}")
+                    st.progress(alt_conf)
 
-                data_profile = None
-                if raw_key in target_dict:
-                    data_profile = target_dict[raw_key]
-                elif clean_key in target_dict:
-                    data_profile = target_dict[clean_key]
+            # Session Logging
+            current_log = {"disease": primary_class, "confidence": f"{primary_confidence * 100:.1f}%"}
+            if current_log not in st.session_state.history:
+                st.session_state.history.append(current_log)
 
-                # If we found a match, display cleanly formatted tabs
-                if data_profile is not None:
-                    tab1, tab2, tab3 = st.tabs(
-                        ["📋 Description & Pathology", "🧪 Biochemical Treatment", "🛡️ Agrosanitary Prevention"])
+        with col2:
+            readable_title = primary_class.replace('___', ' – ').replace('_', ' ')
+            st.success(f"### Diagnosis Target: {readable_title}")
 
-                    with tab1:
-                        st.markdown("### Profile Description")
-                        description_text = (
-                                data_profile.get('about') or
-                                data_profile.get('About') or
-                                data_profile.get('description') or
-                                data_profile.get('Description') or
-                                'Data unavailable.'
-                        )
-                        st.write(description_text)
-
-                        st.markdown("### Clinical Symptoms")
-                        symptoms = data_profile.get('symptoms', 'Data unavailable.')
-                        if isinstance(symptoms, list):
-                            for symptom in symptoms:
-                                st.write(f"• {symptom}")
-                        else:
-                            st.write(symptoms)
-
-                    with tab2:
-                        st.markdown("### Recommended Agricultural Controls")
-                        treatment = data_profile.get('treatment', 'Data unavailable.')
-                        # Check if treatment data is stored as a list, then loop over it to print bullets
-                        if isinstance(treatment, list):
-                            for step in treatment:
-                                st.write(f"• {step}")
-                        else:
-                            st.write(treatment)
-
-                    with tab3:
-                        st.markdown("### Long-term Crop Field Management")
-                        prevention = data_profile.get('prevention', 'Data unavailable.')
-                        # Check if prevention data is stored as a list, then loop over it to print bullets
-                        if isinstance(prevention, list):
-                            for step in prevention:
-                                st.write(f"• {step}")
-                        else:
-                            st.write(prevention)
-                else:
-                    st.info(
-                        f"💡 Model identified pattern metrics, but couldn't find a matching key inside `{DICTIONARY_NAME}`.")
-            else:
-                st.error(f"❌ Variable `{DICTIONARY_NAME}` not found inside `disease_info.py`.")
-        except Exception as e:
-            st.error(f"Error reading dataset profiles from external file array: {e}")
-
-            # --- 8. PDF/TEXT REPORT DUMP ENGINE ---
-            # Instantly creates an offline medical ticket summary asset users can save
             try:
-                # Sync with the new database name
-                if hasattr(disease_info, 'disease_database'):
+                if hasattr(disease_info, "disease_database"):
                     db = disease_info.disease_database
-                    # Smart lookup to ensure we grab the right class name format
                     target_data = db.get(primary_class,
                                          db.get(primary_class.replace('___', '_').replace('__', '_'), {}))
 
-                    about_data = target_data.get('about', 'Data unavailable.')
+                    if target_data:
+                        tab1, tab2, tab3 = st.tabs(["📋 Pathology", "🧪 Treatment", "🛡️ Prevention"])
 
-                    # Check if treatment is a list, and format it nicely for a text file
-                    tx_raw = target_data.get('treatment', 'Data unavailable.')
-                    if isinstance(tx_raw, list):
-                        tx_data = "\n".join([f"• {item}" for item in tx_raw])
+                        with tab1:
+                            st.write(target_data.get('about', 'Data unavailable.'))
+                            st.markdown("#### Clinical Symptoms")
+                            symp = target_data.get('symptoms', 'Data unavailable.')
+                            if isinstance(symp, list):
+                                for s in symp: st.markdown(f"- {s}")
+                            else:
+                                st.write(symp)
+
+                        with tab2:
+                            tx = target_data.get('treatment', 'Data unavailable.')
+                            if isinstance(tx, list):
+                                for t in tx: st.markdown(f"- {t}")
+                            else:
+                                st.write(tx)
+
+                        with tab3:
+                            prev = target_data.get('prevention', 'Data unavailable.')
+                            if isinstance(prev, list):
+                                for p in prev: st.markdown(f"- {p}")
+                            else:
+                                st.write(prev)
                     else:
-                        tx_data = tx_raw
+                        st.info(
+                            "💡 Model identified pattern metrics, but couldn't find a matching key inside the database.")
+            except Exception as e:
+                st.error(f"Error reading dataset profiles: {e}")
+
+            st.write("---")
+
+            # --- 8. REPORT DUMP ENGINE ---
+            try:
+                if hasattr(disease_info, 'disease_database'):
+                    db = disease_info.disease_database
+                    target_data = db.get(primary_class,
+                                         db.get(primary_class.replace('___', '_').replace('__', '_'), {}))
+                    about_data = target_data.get('about', 'Data unavailable.')
+                    tx_raw = target_data.get('treatment', 'Data unavailable.')
+                    tx_data = "\n".join([f"• {item}" for item in tx_raw]) if isinstance(tx_raw, list) else tx_raw
                 else:
-                    about_data = 'N/A'
-                    tx_data = 'N/A'
+                    about_data, tx_data = 'N/A', 'N/A'
 
                 report_body = (
                     f"PLANT DOCTOR AI DIAGNOSTIC EXAM SUMMARY\n"
@@ -292,8 +231,8 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
                     label="📥 Export Digital Treatment Record (TXT)",
                     data=report_body,
                     file_name=f"PlantDoctor_Diagnosis_{primary_class}.txt",
-                    mime="text/plain"
+                    mime="text/plain",
+                    use_container_width=True
                 )
             except Exception as e:
-                # Removed the silent 'pass' so you can actually see if the button fails
                 st.error(f"Error generating download report: {e}")
