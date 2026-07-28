@@ -1,13 +1,14 @@
+import os
 import streamlit as st
 import tensorflow as tf
+import keras  # We are using native, modern Keras 3 directly!
 import numpy as np
 from PIL import Image
 import json
-import os
 
 # --- 1. SAFE IMPORTS & CONFIGURATION ---
 st.set_page_config(
-    page_title="Plant Doctor AI ",
+    page_title="Plant Doctor AI",
     page_icon="🌱",
     layout="centered"
 )
@@ -16,7 +17,7 @@ st.set_page_config(
 try:
     import disease_info
 except ImportError:
-    st.error("❌ Could not find `disease_info.py` in the current directory. Please make sure it exists alongside app.py.")
+    st.error("❌ Could not find `disease_info.py` in the current directory.")
 
 # Initialize a clean session history if it doesn't exist yet
 if 'history' not in st.session_state:
@@ -26,12 +27,19 @@ if 'history' not in st.session_state:
 # --- 2. OPTIMIZED MODEL & DATA LOADING ---
 @st.cache_resource
 def load_prediction_model():
-    """Loads the compiled keras model safely and caches it to prevent reloading lag."""
+    """Loads the compiled keras model safely using the modern Keras 3 engine."""
     model_path = os.path.join('model', 'final_model.keras')
     if not os.path.exists(model_path):
-        st.error(f"❌ Model file missing at `{model_path}`. Please verify your project folder structure.")
+        st.error(f"❌ Model file missing at `{model_path}`.")
         return None
-    return tf.keras.models.load_model(model_path)
+
+    try:
+        # Pure Keras 3 native loading - no legacy wrappers
+        return keras.models.load_model(model_path, compile=False)
+    except Exception as e:
+        st.error(f"Failed to load model: {e}")
+        return None
+
 
 @st.cache_data
 def load_class_labels():
@@ -43,10 +51,10 @@ def load_class_labels():
     with open(label_path, 'r') as f:
         return json.load(f)
 
+
 # Load data assets
 model = load_prediction_model()
 class_names = load_class_labels()
-
 # -------------------------------
 # Hidden Developer Mode
 # -------------------------------
@@ -247,27 +255,44 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
                 st.error(f"❌ Variable `{DICTIONARY_NAME}` not found inside `disease_info.py`.")
         except Exception as e:
             st.error(f"Error reading dataset profiles from external file array: {e}")
-            
-        # --- 8. PDF/TEXT REPORT DUMP ENGINE ---
-        # Instantly creates an offline medical ticket summary asset users can save
-        try:
-            about_data = disease_info.info_dict.get(primary_class, {}).get('about', 'N/A') if 'disease_info' in locals() else 'N/A'
-            tx_data = disease_info.info_dict.get(primary_class, {}).get('treatment', 'N/A') if 'disease_info' in locals() else 'N/A'
-            
-            report_body = (
-                f"PLANT DOCTOR AI DIAGNOSTIC EXAM SUMMARY\n"
-                f"============================================\n"
-                f"Target Identification Class : {primary_class}\n"
-                f"Model Verification Weight   : {primary_confidence * 100:.2f}%\n\n"
-                f"PATHOLOGY OVERVIEW:\n{about_data}\n\n"
-                f"TREATMENT INSTRUCTIONS:\n{tx_data}\n"
-            )
-            
-            st.download_button(
-                label="📥 Export Digital Treatment Record (TXT)",
-                data=report_body,
-                file_name=f"PlantDoctor_Diagnosis_{primary_class}.txt",
-                mime="text/plain"
-            )
-        except Exception:
-            pass
+
+            # --- 8. PDF/TEXT REPORT DUMP ENGINE ---
+            # Instantly creates an offline medical ticket summary asset users can save
+            try:
+                # Sync with the new database name
+                if hasattr(disease_info, 'disease_database'):
+                    db = disease_info.disease_database
+                    # Smart lookup to ensure we grab the right class name format
+                    target_data = db.get(primary_class,
+                                         db.get(primary_class.replace('___', '_').replace('__', '_'), {}))
+
+                    about_data = target_data.get('about', 'Data unavailable.')
+
+                    # Check if treatment is a list, and format it nicely for a text file
+                    tx_raw = target_data.get('treatment', 'Data unavailable.')
+                    if isinstance(tx_raw, list):
+                        tx_data = "\n".join([f"• {item}" for item in tx_raw])
+                    else:
+                        tx_data = tx_raw
+                else:
+                    about_data = 'N/A'
+                    tx_data = 'N/A'
+
+                report_body = (
+                    f"PLANT DOCTOR AI DIAGNOSTIC EXAM SUMMARY\n"
+                    f"============================================\n"
+                    f"Target Identification Class : {primary_class}\n"
+                    f"Model Verification Weight   : {primary_confidence * 100:.2f}%\n\n"
+                    f"PATHOLOGY OVERVIEW:\n{about_data}\n\n"
+                    f"TREATMENT INSTRUCTIONS:\n{tx_data}\n"
+                )
+
+                st.download_button(
+                    label="📥 Export Digital Treatment Record (TXT)",
+                    data=report_body,
+                    file_name=f"PlantDoctor_Diagnosis_{primary_class}.txt",
+                    mime="text/plain"
+                )
+            except Exception as e:
+                # Removed the silent 'pass' so you can actually see if the button fails
+                st.error(f"Error generating download report: {e}")
