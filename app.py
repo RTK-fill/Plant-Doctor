@@ -18,12 +18,12 @@ st.set_page_config(
 
 # Inject Custom CSS to hide Streamlit default branding and margins
 # --- 1. SAFE IMPORTS & CLEAN MINIMALIST CSS ---
+# --- 1. SAFE IMPORTS & CLEAN MINIMALIST CSS ---
 custom_css = """
 <style>
-    /* Hide Streamlit branding */
+    /* Hide Streamlit Hamburger Menu and Footer, but keep the Header for the sidebar arrow! */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
     .block-container {padding-top: 2rem; padding-bottom: 2rem;}
 
     /* Clean subtle card look for containers */
@@ -48,7 +48,6 @@ custom_css = """
 </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
-
 
 # Safely import and force-reload disease info so descriptions always update
 try:
