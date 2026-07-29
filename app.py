@@ -116,30 +116,79 @@ with st.sidebar.expander("🛠️ System Admin / Developer"):
 
 # --- 4. MAIN APP INTERFACE ---
 
-# Clean, full-width high-impact header
-st.markdown("""
-    <div style="margin-top: 0px; margin-bottom: 20px;">
-        <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 0px; line-height: 1.1;">
-            🌱 Plant Doctor AI
-        </h1>
-        <p style="font-size: 1.15rem; opacity: 0.7; font-weight: 400; margin-top: 5px;">
-            Advanced Agricultural Neural Network Diagnostics Framework
-        </p>
-    </div>
-""", unsafe_allow_html=True)
+# Top bar layout containing a clean header title
+col_toggle, col_title = st.columns([0.1, 0.9])
+
+with col_toggle:
+    if st.button("▶", help="Toggle Sidebar"):
+        st.rerun()
+
+with col_title:
+    st.markdown("""
+        <div style="margin-top: 0px; margin-bottom: 20px;">
+            <h1 style="font-size: 2.8rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 0px; line-height: 1.1;">
+                🌱 Plant Doctor AI
+            </h1>
+            <p style="font-size: 1.1rem; opacity: 0.7; font-weight: 400; margin-top: 5px;">
+                Advanced Agricultural Neural Network Diagnostics Framework
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
 
 st.write("---")
 
-# Horizontal toggle for cleaner UI
-input_mode = st.radio("📸 **Select Image Source:**", ("📁 Upload Image File", "📷 Use Live Camera Capture"), horizontal=True)
+# State management for sample gallery
+if "selected_sample" not in st.session_state:
+    st.session_state.selected_sample = None
+
+# Horizontal toggle updated with a 3rd option
+input_mode = st.radio("📸 **Select Image Source:**",
+                      ("📁 Upload Image File", "📷 Use Live Camera Capture", "🌿 Try a Sample Leaf"),
+                      horizontal=True)
+
 uploaded_file = None
+
 if input_mode == "📁 Upload Image File":
+    st.session_state.selected_sample = None  # Reset sample state
     uploaded_file = st.file_uploader("Select a plant leaf image...", type=["jpg", "jpeg", "png"],
                                      label_visibility="collapsed")
-else:
+
+elif input_mode == "📷 Use Live Camera Capture":
+    st.session_state.selected_sample = None  # Reset sample state
     uploaded_file = st.camera_input("Center the affected leaf pattern in the camera frame",
                                     label_visibility="collapsed")
 
+elif input_mode == "🌿 Try a Sample Leaf":
+    st.markdown("##### 🧪 Select a sample to test the AI:")
+
+    # Check if the samples folder exists to prevent crashing
+    if not os.path.exists("samples"):
+        st.warning("⚠️ The `samples` folder is missing. Please create a folder named 'samples' and add images to it.")
+    else:
+        # Create a beautiful 3-column layout for the gallery
+        samp_col1, samp_col2, samp_col3 = st.columns(3)
+
+        with samp_col1:
+            if os.path.exists("samples/sample1.jpg"):
+                st.image("samples/sample1.jpg", use_container_width=True)
+                if st.button("Test Sample 1", use_container_width=True):
+                    st.session_state.selected_sample = "samples/sample1.jpg"
+
+        with samp_col2:
+            if os.path.exists("samples/sample2.jpg"):
+                st.image("samples/sample2.jpg", use_container_width=True)
+                if st.button("Test Sample 2", use_container_width=True):
+                    st.session_state.selected_sample = "samples/sample2.jpg"
+
+        with samp_col3:
+            if os.path.exists("samples/sample3.jpg"):
+                st.image("samples/sample3.jpg", use_container_width=True)
+                if st.button("Test Sample 3", use_container_width=True):
+                    st.session_state.selected_sample = "samples/sample3.jpg"
+
+    # Feed the selected sample into the prediction pipeline
+    if st.session_state.selected_sample:
+        uploaded_file = st.session_state.selected_sample
 # --- 5. PROCESSING & INFERENCE PIPELINE ---
 if uploaded_file is not None and model is not None and len(class_names) > 0:
     image = Image.open(uploaded_file)
