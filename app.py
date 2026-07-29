@@ -254,6 +254,19 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
 
                 # Build a dictionary or data structure for Streamlit's bar chart
                 top_5_indices = np.argsort(raw_predictions)[-5:][::-1]
+
+                chart_data = {}
+                for idx in top_5_indices:
+                    # Clean up class name for readable chart labels
+                    label = class_names[idx].replace('___', ' ').replace('_', ' ')
+                    # Shorten extra long names if needed
+                    if len(label) > 25:
+                        label = label[:22] + "..."
+                    score = float(raw_predictions[idx]) * 100  # Multiply by 100 for percentage scale
+                    chart_data[label] = score
+
+                # Render native interactive Streamlit bar chart
+                st.bar_chart(chart_data, color="#4ade80")
         with col2:
             readable_title = primary_class.replace('___', ' – ').replace('_', ' ')
             st.success(f"### Diagnosis Target: {readable_title}")
