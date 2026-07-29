@@ -224,31 +224,36 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
             # Sleek KPI Metric display
             st.metric(label="🔬 Primary Model Confidence", value=f"{primary_confidence * 100:.2f}%")
 
+            # --- DYNAMIC HEALTH STATUS BADGE ---
+            if "healthy" in primary_class.lower():
+                badge_color = "#10b981"  # Emerald Green
+                bg_color = "rgba(16, 185, 129, 0.1)"
+                status_text = "🟢 Status: Optimal Health"
+            elif primary_confidence < 0.75:
+                badge_color = "#f59e0b"  # Amber/Yellow
+                bg_color = "rgba(245, 158, 11, 0.1)"
+                status_text = "🟡 Status: Early Stage / Moderate Symptoms"
+            else:
+                badge_color = "#ef4444"  # Red
+                bg_color = "rgba(239, 68, 68, 0.1)"
+                status_text = "🔴 Status: Severe Infection Detected"
+
+            # Render the custom CSS badge
+            st.markdown(f"""
+                <div style="background-color: {bg_color}; border: 1px solid {badge_color}; 
+                            padding: 10px; border-radius: 8px; margin-bottom: 20px; 
+                            color: {badge_color}; font-size: 1.05rem; font-weight: 600; text-align: center;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    {status_text}
+                </div>
+            """, unsafe_allow_html=True)
+
             # --- INTERACTIVE PROBABILITY CHART ---
             with st.expander("📊 View Probability Distribution", expanded=True):
                 st.caption("Top matching disease candidate likelihoods:")
 
                 # Build a dictionary or data structure for Streamlit's bar chart
-                # We'll take the top 5 predictions to make the chart look robust
                 top_5_indices = np.argsort(raw_predictions)[-5:][::-1]
-
-                chart_data = {}
-                for idx in top_5_indices:
-                    # Clean up class name for readable chart labels
-                    label = class_names[idx].replace('___', ' ').replace('_', ' ')
-                    # Shorten extra long names if needed
-                    if len(label) > 25:
-                        label = label[:22] + "..."
-                    score = float(raw_predictions[idx])
-                    chart_data[label] = score
-
-                # Render native interactive Streamlit bar chart
-                st.bar_chart(chart_data, color="#4ade80")
-
-            # Session Logging
-            current_log = {"disease": primary_class, "confidence": f"{primary_confidence * 100:.1f}%"}
-            if current_log not in st.session_state.history:
-                st.session_state.history.append(current_log)
         with col2:
             readable_title = primary_class.replace('___', ' – ').replace('_', ' ')
             st.success(f"### Diagnosis Target: {readable_title}")
