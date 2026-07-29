@@ -116,24 +116,17 @@ with st.sidebar.expander("🛠️ System Admin / Developer"):
 
 # --- 4. MAIN APP INTERFACE ---
 
-# Top bar layout containing a clean header title
-col_toggle, col_title = st.columns([0.1, 0.9])
-
-with col_toggle:
-    if st.button("▶", help="Toggle Sidebar"):
-        st.rerun()
-
-with col_title:
-    st.markdown("""
-        <div style="margin-top: 0px; margin-bottom: 20px;">
-            <h1 style="font-size: 2.8rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 0px; line-height: 1.1;">
-                🌱 Plant Doctor AI
-            </h1>
-            <p style="font-size: 1.1rem; opacity: 0.7; font-weight: 400; margin-top: 5px;">
-                Advanced Agricultural Neural Network Diagnostics Framework
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+# Clean, full-width high-impact header (No extra buttons)
+st.markdown("""
+    <div style="margin-top: 0px; margin-bottom: 20px;">
+        <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 0px; line-height: 1.1;">
+            🌱 Plant Doctor AI
+        </h1>
+        <p style="font-size: 1.15rem; opacity: 0.7; font-weight: 400; margin-top: 5px;">
+            Advanced Agricultural Neural Network Diagnostics Framework
+        </p>
+    </div>
+""", unsafe_allow_html=True)
 
 st.write("---")
 
