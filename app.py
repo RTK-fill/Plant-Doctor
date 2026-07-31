@@ -267,6 +267,16 @@ if uploaded_file is not None and model is not None and len(class_names) > 0:
 
                 # Render native interactive Streamlit bar chart
                 st.bar_chart(chart_data, color="#4ade80")
+
+                # --- SESSION LOGGING (HISTORY) ---
+            if "history" not in st.session_state:
+                st.session_state.history = []
+
+            current_log = {"disease": primary_class, "confidence": f"{primary_confidence * 100:.2f}%"}
+
+            # Add to history if it is a new scan to prevent duplicates
+            if current_log not in st.session_state.history:
+                st.session_state.history.append(current_log)
         with col2:
             readable_title = primary_class.replace('___', ' – ').replace('_', ' ')
             st.success(f"### Diagnosis Target: {readable_title}")

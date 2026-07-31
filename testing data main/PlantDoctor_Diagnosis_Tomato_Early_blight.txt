@@ -1,0 +1,12 @@
+PLANT DOCTOR AI DIAGNOSTIC EXAM SUMMARY
+============================================
+Target Identification Class : Tomato_Early_blight
+Model Verification Weight   : 92.60%
+
+PATHOLOGY OVERVIEW:
+Caused by the fungus Alternaria linariae (formerly solani), Early Blight is one of the most common tomato diseases. It typically starts after heavy fruit set begins, attacking the oldest leaves first and working its way up the canopy.
+
+TREATMENT INSTRUCTIONS:
+• Spray with copper-based or bio-fungicides (like Bacillus subtilis) at the first sign of spots.
+• Remove heavily infected lower leaves and dispose of them in the trash.
+• Keep the plant optimally fed, as Early Blight heavily targets nitrogen-deficient plants.
